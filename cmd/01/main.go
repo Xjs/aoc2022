@@ -10,17 +10,16 @@ import (
 )
 
 func main() {
-	solution, err := aoc1task1(os.Stdin)
+	fn := aoc1task1
+	if len(os.Args) > 1 && os.Args[1] == "part2" {
+		fn = aoc1task2
+	}
+
+	solution, err := fn(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(solution)
-
-	solution2, err := aoc1task2(os.Stdin)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(solution2)
 }
 
 func aoc1task1(r io.Reader) (int, error) {
@@ -64,11 +63,15 @@ func aoc1(r io.Reader, count int) (int, error) {
 		}
 	}
 
-	var current int
+	current := -1
 
 	for s.Scan() {
 		t := s.Text()
 		if t == "" {
+			if current == -1 {
+				continue
+			}
+
 			sums = append(sums, 0)
 			insert(current)
 			continue
@@ -87,10 +90,16 @@ func aoc1(r io.Reader, count int) (int, error) {
 
 		sums[current] += i
 	}
-	insert(current)
+
+	if current != -1 {
+		insert(current)
+	}
 
 	sum := 0
 	for _, li := range largestIdxs {
+		if li == -1 {
+			continue
+		}
 		sum += sums[li]
 	}
 
