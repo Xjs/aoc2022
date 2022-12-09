@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/Xjs/aoc2021/part"
 )
 
 const Head = 1
@@ -52,25 +54,26 @@ func (m Motion) Apply(p Point) Point {
 	x := p.X + m.X
 	y := p.Y + m.Y
 
-	if x < 0 {
-		x = 0
-	}
-	if y < 0 {
-		y = 0
-	}
-
 	p.X = x
 	p.Y = y
 
 	return p
 }
 
+func tail(p []Point) Point {
+	return p[len(p)-1]
+}
+
 func main() {
-	head := P(0, 0)
-	tail := P(0, 0)
+	length := 2
+	if !part.One() {
+		length = 10
+	}
+
+	rope := make([]Point, length)
 
 	visited := make(map[Point]struct{})
-	visited[tail] = struct{}{}
+	visited[rope[len(rope)-1]] = struct{}{}
 
 	s := bufio.NewScanner(os.Stdin)
 	for s.Scan() {
@@ -89,10 +92,14 @@ func main() {
 		}
 
 		for ; steps > 0; steps-- {
-			head = m.Apply(head)
-			tm := follow(head, tail)
-			tail = tm.Apply(tail)
-			visited[tail] = struct{}{}
+			rope[0] = m.Apply(rope[0])
+			for i := 1; i < len(rope); i++ {
+				tm := follow(rope[i-1], rope[i])
+				rope[i] = tm.Apply(rope[i])
+				if i == len(rope)-1 {
+					visited[rope[i]] = struct{}{}
+				}
+			}
 		}
 	}
 
